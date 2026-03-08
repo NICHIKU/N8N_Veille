@@ -55,7 +55,9 @@ P.S : Le lien que j'ai utilisé pour faire mes tests
 [https://www.digitalfoundry.net/feed/](https://www.digitalfoundry.net/feed/)
 
 Une fois que j'ai trouvé j'ai suivi ces tutos pour les implémenter
+
 [https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.rssfeedread/](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.rssfeedread/)
+
 [https://help.rss.app/en/articles/11434018-how-to-add-rss-feeds-to-n8n](https://help.rss.app/en/articles/11434018-how-to-add-rss-feeds-to-n8n)
 
 J'avais quelques problèmes avec les différents flux rss qui n'étaient pas traîtés séparément, après quelques recherches voici ce que j'ai trouvé pour régler mon problème :

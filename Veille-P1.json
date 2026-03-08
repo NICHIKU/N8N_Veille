@@ -1,0 +1,311 @@
+{
+  "name": "Veille-P1",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2c3de973-ea6d-4186-b438-ef1bcaeb3c71",
+              "name": "RSS",
+              "value": "=[\n  \"https://www.stat4decision.com/fr/feed/\",\n  \"https://blog.octo.com/feed/\",\n  \"https://medium.com/feed/tag/data-engineering\",\n  \"https://practicaldataengineering.substack.com/feed\",\n\"https://towardsdatascience.com/feed\"\n\n]",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "51df37aa-9f48-499f-a8c4-b08a217d86b7",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "RSS",
+        "include": "allOtherFields",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "3003b262-ea5e-421d-a861-d3a345ea5e9f",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c19dbaa3-fc5a-41c5-afe1-9e703d0c4ed7",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.RSS }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        640,
+        0
+      ],
+      "id": "7881da8c-b977-4b32-904f-6d371e649157",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "28a78faf-b517-4a25-9e35-9c89682a4da4",
+              "leftValue": "={{ $json.timeDifference.hours }}",
+              "rightValue": "=24",
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "c34b57ec-0bef-4cdf-894a-ad3ba8ffa017",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "operation": "getTimeBetweenDates",
+        "startDate": "={{ $json.isoDate }}",
+        "endDate": "={{$now}}",
+        "units": [
+          "hour"
+        ],
+        "options": {
+          "includeInputFields": true,
+          "isoString": false
+        }
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        864,
+        0
+      ],
+      "id": "14fa7721-405a-4dd0-b998-d39e4f42ea17",
+      "name": "Date & Time"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0c72c767-73a1-45a9-8b57-ae00c2081764",
+              "leftValue": "={{ $json.creator }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        1328,
+        144
+      ],
+      "id": "115ea0bc-2196-4c8e-9a49-b76b21532668",
+      "name": "Author"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "options": {
+          "wait": true
+        },
+        "embeds": {
+          "values": [
+            {
+              "description": "={{ $json.contentSnippet }}",
+              "author": "={{ $json.creator }}",
+              "color": "#FF0000",
+              "timestamp": "={{ $json.isoDate }}",
+              "title": "={{ $json.title }}",
+              "url": "={{ $json.link }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1584,
+        144
+      ],
+      "id": "157ec441-3c27-4ba8-835b-c0fb587ce8e5",
+      "name": "Discord1",
+      "webhookId": "6f39e2c5-47cf-4090-b79e-19d3cc37986d",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "owZ1tB46istFxUfc",
+          "name": "Discord Webhook account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://discord.com/api/webhooks/1479869082374504648/US6_uPFI-QlDozh3_TiAauLoDPbl8-rRhPxcaR4PbcH3ptn_z1284n1D8OxhgbTWJKjC",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"type\": 0,\n  \"content\": \"\",\n  \"mentions\": [],\n  \"mention_roles\": [],\n  \"attachments\": [],\n  \"embeds\": [\n    {\n      \"type\": \"rich\",\n      \"url\": \"https://medium.com/@komalbaparmar007/10-patterns-that-make-feature-backfills-safe-under-schema-change-a4ae226ae17e?source=rss------data_engineering-5\",\n      \"title\": \"10 patterns that make feature backfills safe under schema change\",\n      \"description\": \"Learn how to re-compute features without silently corrupting training data — using versioned schemas, idempotent jobs, and…\\nContinue reading on Medium »\",\n      \"color\": 16711680,\n      \"timestamp\": \"2026-03-08T17:31:00+00:00\",\n      \"author\": {\n        \"name\": \"Yamishift\"\n      },\n      \"content_scan_version\": 0\n    }\n  ],\n  \"timestamp\": \"2026-03-08T17:37:27.258000+00:00\",\n  \"edited_timestamp\": null,\n  \"flags\": 0,\n  \"components\": [],\n  \"id\": \"1480258160198422738\",\n  \"channel_id\": \"1479883376893624390\",\n  \"author\": {\n    \"id\": \"1479869082374504648\",\n    \"username\": \"Captain Hook\",\n    \"avatar\": null,\n    \"discriminator\": \"0000\",\n    \"public_flags\": 0,\n    \"flags\": 0,\n    \"bot\": true,\n    \"global_name\": null,\n    \"clan\": null,\n    \"primary_guild\": null\n  },\n  \"pinned\": false,\n  \"mention_everyone\": false,\n  \"tts\": false,\n  \"webhook_id\": \"1479869082374504648\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1360,
+        -64
+      ],
+      "id": "a63df31f-e0a1-4bd7-b3b7-939764268e3a",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Date & Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Author",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Author": {
+      "main": [
+        [
+          {
+            "node": "Discord1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "a9424373-d279-41e0-b741-96de2bd7f3e2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7ea7e0e80ddf0ba3b8f6d2bb03b988997174ecd10c5aa5f9d3165864eefb937b"
+  },
+  "id": "bs38Q8iel9kI1gt5",
+  "tags": []
+}
